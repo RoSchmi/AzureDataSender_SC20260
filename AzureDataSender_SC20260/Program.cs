@@ -1,19 +1,20 @@
 ﻿// Copyright RoSchmi 2020, License Apache 2.0
 // This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
-// This App shows how to write Sensor Data (4 analog Sensors) and up to 4 OnOffSensors to Azure Storage Tables
-// If 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 45 sec which will form sinus curves
-// when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). The Microsoft UWP Version of Charts4Azure is free
-// When the Button 'App' on the board is pressed (hold it some 10 seconds) and released this results in an On/Off Graph in Charts4Azure 
+// This App shows how to write Sensor-Data (4 analog Sensors) and data from up to 4 On/OffSensors to Azure Storage Tables
+//
+// If the directive 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 45 sec which will form sinus curves
+// when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). The Microsoft UWP Version of Charts4Azure is free of charge.
+// When the Button 'App' on the board is pressed (hold it some 10 seconds) and released this results in a changed state of the On/Off-Graph in 'Charts4Azure' 
 // 
-// First go to 'Settings to be changed by user and enter your credentials for your Azure Storage Account 
-// and your WiFi Credentials
-// The Credentials can either be entered directly in the Code or can better be in  .txt files in the 'ResourcesSecret'
-
+// First go to 'Settings to be changed by user and enter your credentials for your Azure Storage Account and your WiFi Credentials
+// 
+// The Credentials can either be entered directly in the Code or can better be in  .txt files in the 'ResourcesSecret' folder
+//
 // With #define UseTestValues you can select if data are read from sensors or if simulated data (sinus curves) are used
 
 #define UseTestValues
 
-// With #define UseWiFi you can select if the WiFi Click 7 Module on microBus 2 or an Enc28 Ethernet Module on microBus1 is used
+// With #define UseWiFi you can select if the WiFi Click 7 Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
 
 #define UseWifiModule
 
@@ -24,7 +25,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using System.Net.Sockets;
 using GHIElectronics.TinyCLR.Devices.Gpio;
 using GHIElectronics.TinyCLR.Devices.Adc;
 using GHIElectronics.TinyCLR.Devices.Rtc;
@@ -99,6 +99,7 @@ namespace AzureDataSender_SC20260
 
         #endregion
 
+        #region Region Fields
         private static bool linkReady = false;
 
         private static bool timeServiceIsRunning = false;
@@ -138,6 +139,7 @@ namespace AzureDataSender_SC20260
         static DateTime OnOffSensor01LastSendTime = DateTime.MinValue;
         static TimeSpan OnOffSensor01OnTimeDay = new TimeSpan(0, 0, 0);
         private static int OnOffTable01Year = 1900;
+        #endregion
 
         #region Region Main()
         static void Main()
@@ -189,7 +191,7 @@ namespace AzureDataSender_SC20260
         }
 #endregion
 
-#region Timer Event: writeAnalogToCloudTimer_tick  --- Entity with analog values is written to the Cloud
+        #region Timer Event: writeAnalogToCloudTimer_tick  --- Entity with analog values is written to the Cloud
         private static void writeAnalogToCloudTimer_tick(object state)
         {
             writeAnalogToCloudTimer.Change(10 * 60 * 1000, 10 * 60 * 1000);    // Set to a long interval, so will not fire again before completed
@@ -198,7 +200,7 @@ namespace AzureDataSender_SC20260
             {
                 int yearOfSend = DateTime.Now.Year;
 
-#region Region Create analogTable if not exists
+        #region Region Create analogTable if not exists
                 HttpStatusCode resultTableCreate = HttpStatusCode.Ambiguous;
                 if (AnalogCloudTableYear != yearOfSend)
                 {
@@ -208,7 +210,7 @@ namespace AzureDataSender_SC20260
                     //watchdogIsActive = false;
                 }
 
-#endregion
+        #endregion
 
                 if ((resultTableCreate == HttpStatusCode.Created) || (resultTableCreate == HttpStatusCode.NoContent) || (resultTableCreate == HttpStatusCode.Conflict))
                 {
@@ -279,9 +281,9 @@ namespace AzureDataSender_SC20260
                 }
             }
         }
-#endregion
+        #endregion
 
-#region Timer Event: readLastAnalogRowTimer_tick
+        #region Timer Event: readLastAnalogRowTimer_tick
         private static void readLastAnalogRowTimer_tick(object state)
         {
             lock (LockProgram)
@@ -321,7 +323,7 @@ namespace AzureDataSender_SC20260
         }
 #endregion
 
-#region Timer Event: getSensorDataTimer_tick
+        #region Timer Event: getSensorDataTimer_tick
         private static void getSensorDataTimer_tick(object state)
         {
             lock (LockProgram)
@@ -336,7 +338,7 @@ namespace AzureDataSender_SC20260
         }
 #endregion
 
-#region Timer Event: OnOffSensor01_ValueChanged  -- Entity with OnOffSensorData is written to the Cloud
+        #region Timer Event: OnOffSensor01_ValueChanged  -- Entity with OnOffSensorData is written to the Cloud
 
         private static void OnOffSensor01_ValueChanged(GpioPin sender, GpioPinValueChangedEventArgs e)
         {
@@ -403,13 +405,47 @@ namespace AzureDataSender_SC20260
         }
 
 
-#endregion
+        #endregion
 
-#region Region ReadAnalogSensors      
+        #region event TimeService_SystemTimeChecked
+        private static void TimeService_SystemTimeChecked(object sender, SystemTimeChangedEventArgs e)
+        {
+            Debug.WriteLine("SystemTime was checked! " + DateTime.Now);
+        }
+        #endregion
+
+        #region event TimeService_SystemTimeChanged
+        private static void TimeService_SystemTimeChanged(object sender, SystemTimeChangedEventArgs e)
+        {
+            Debug.WriteLine("SystemTime has changed. Actual local Time is " + DateTime.Now);
+            Debug.WriteLine("Actual utc Time is " + DateTime.UtcNow);
+        }
+        #endregion
+
+        #region event NetworkController_NetworkLinkConnectedChanged
+        private static void NetworkController_NetworkLinkConnectedChanged
+            (NetworkController sender, NetworkLinkConnectedChangedEventArgs e)
+        {
+            // Raise event connect/disconnect
+        }
+        #endregion
+
+        #region event NetworkController_NetworkAddressChanged
+        private static void NetworkController_NetworkAddressChanged
+            (NetworkController sender, NetworkAddressChangedEventArgs e)
+        {
+            var ipProperties = sender.GetIPProperties();
+            var address = ipProperties.Address.GetAddressBytes();
+
+            linkReady = address[0] != 0;
+        }
+        #endregion
+
+        #region private method ReadAnalogSensors      
         private static double ReadAnalogSensor(int pAin)
         {
 
-#if !UseTestValues
+        #if !UseTestValues
             // Use values read from the analogInput ports
 
             double theRead = 999.9;
@@ -440,7 +476,7 @@ namespace AzureDataSender_SC20260
 
             return theRead * 10.0;
 
-#else
+            #else
             // Only as an example we here return values which draw a sinus curve
             // Console.WriteLine("entering Read analog sensor");
             int frequDeterminer = 4;
@@ -458,11 +494,11 @@ namespace AzureDataSender_SC20260
             int secondsOnDayElapsed = DateTime.Now.Second + DateTime.Now.Minute * 60 + DateTime.Now.Hour * 60 * 60;
             
             return Math.Round(25f * (double)Math.Sin(Math.PI / 2.0 + (secondsOnDayElapsed * ((frequDeterminer * Math.PI) / (double)86400)))) / 10  + y_offset;          
-#endif
+            #endif
         }
-#endregion
+        #endregion
 
-#region private method insertTableEntity
+        #region private method insertTableEntity
         private static HttpStatusCode insertTableEntity(CloudStorageAccount pCloudStorageAccount, X509Certificate[] pCaCerts, string pTable, TableEntity pTableEntity, out string pInsertETag)
         {
             //table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level, wifi);
@@ -479,9 +515,9 @@ namespace AzureDataSender_SC20260
             //Debug.Print("Entity inserted");
             return resultCode;
         }
-#endregion
+        #endregion
 
-#region private method createTable
+        #region private method createTable
         private static HttpStatusCode createTable(CloudStorageAccount pCloudStorageAccount, X509Certificate[] pCaCerts, string pTableName)
         {
             //table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level, wifi);
@@ -497,9 +533,9 @@ namespace AzureDataSender_SC20260
             HttpStatusCode resultCode = table.CreateTable(pTableName, TableClient.ContType.applicationIatomIxml, TableClient.AcceptType.applicationIjson, TableClient.ResponseType.dont_returnContent, useSharedKeyLite: false);
             return resultCode;
         }
-#endregion
+        #endregion
 
-#region private method queryTableEntities
+        #region private method queryTableEntities
         private static HttpStatusCode queryTableEntities(CloudStorageAccount pCloudStorageAccount, X509Certificate[] pCaCerts, string tableName, string query, out ArrayList queryResult)
         {
             //table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level, wifi);
@@ -523,9 +559,9 @@ namespace AzureDataSender_SC20260
             return resultCode;
         }
 
-#endregion
+        #endregion
 
-#region private method SetAppTime
+        #region method SetAppTime
         public static void SetAppTime(int pTimeZoneOffset, string pTimeServer_1, string pTimeServer_2)
         {
             // Set parameters of the TimeService
@@ -627,23 +663,8 @@ namespace AzureDataSender_SC20260
         }
 #endregion
 
-#region TimeService_SystemTimeChecked
-        private static void TimeService_SystemTimeChecked(object sender, SystemTimeChangedEventArgs e)
-        {
-            Debug.WriteLine("SystemTime was checked! " + DateTime.Now);
-        }
-#endregion
-
-#region TimeService_SystemTimeChanged
-        private static void TimeService_SystemTimeChanged(object sender, SystemTimeChangedEventArgs e)
-        {
-            Debug.WriteLine("SystemTime has changed. Actual local Time is " + DateTime.Now);
-            Debug.WriteLine("Actual utc Time is " + DateTime.UtcNow);
-        }
-#endregion
-
-#region SetupEnc28_SC20260D_MicroBus1
-        static void SetupEnc28_SC20260D_MicroBus1()
+        #region private method SetupEnc28_SC20260D_MicroBus1
+        private static void SetupEnc28_SC20260D_MicroBus1()
         {
             networkController = NetworkController.FromName
                 ("GHIElectronics.TinyCLR.NativeApis.ENC28J60.NetworkController");
@@ -709,7 +730,7 @@ namespace AzureDataSender_SC20260
         }
 #endregion
 
-#region SetupWiFi7Click_SC20260D_MicroBus2
+        #region private method SetupWiFi7Click_SC20260D_MicroBus2
         static void SetupWiFi7Click_SC20260D_MicroBus2()
         {
             
@@ -787,74 +808,25 @@ namespace AzureDataSender_SC20260
 
             // Network is ready to used
         }
-#endregion
+        #endregion
 
-
-#region NetworkController_NetworkLinkConnectedChanged
-        private static void NetworkController_NetworkLinkConnectedChanged
-            (NetworkController sender, NetworkLinkConnectedChangedEventArgs e)
-        {
-            // Raise event connect/disconnect
-
-            int dummy1 = 1;
-
-        }
-#endregion
-
-#region NetworkController_NetworkAddressChanged
-        private static void NetworkController_NetworkAddressChanged
-            (NetworkController sender, NetworkAddressChangedEventArgs e)
-        {
-            var ipProperties = sender.GetIPProperties();
-            var address = ipProperties.Address.GetAddressBytes();
-
-            linkReady = address[0] != 0;
-        }
-#endregion
-
-        /*
-        public static DateTime GetNetworkTime(int CorrectLocalTime = 0)
-        {
-            const string ntpServer = "pool.ntp.org";
-            var ntpData = new byte[48];
-            ntpData[0] = 0x1B; //LeapIndicator = 0 (no warning), VersionNum = 3 (IPv4 only), Mode = 3 (Client Mode)
-
-            var addresses = Dns.GetHostEntry(ntpServer).AddressList;
-            var ipEndPoint = new IPEndPoint(addresses[0], 123);
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-            socket.Connect(ipEndPoint);
-            Thread.Sleep(0);
-            socket.Send(ntpData);
-            socket.Receive(ntpData);
-            socket.Close();
-
-            ulong intPart = (ulong)ntpData[40] << 24 | (ulong)ntpData[41] << 16 | (ulong)ntpData[42] << 8 | (ulong)ntpData[43];
-            ulong fractPart = (ulong)ntpData[44] << 24 | (ulong)ntpData[45] << 16 | (ulong)ntpData[46] << 8 | (ulong)ntpData[47];
-
-            var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
-            var networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
-
-            return networkDateTime.AddHours(CorrectLocalTime);
-        }
-        */
-
-#region Region Private methods 
+        #region private method makePartitionKey
 
         private static string makePartitionKey(string partitionKeyprefix, bool augmentWithYear)
         {
             // if wanted, augment with year and month (12 - month for right order)     
             return augmentWithYear == true ? partitionKeyprefix + DateTime.Today.Year + "-" + (12 - DateTime.Now.Month).ToString("D2") : partitionKeyprefix;
         }
+        #endregion
 
+        #region private method makeRowKey
         private static string makeRowKey(DateTime actDate)
         {
             // formatting the RowKey (= reverseDate) this way to have the tables sorted with last added row upmost
             return (10000 - actDate.Year).ToString("D4") + (12 - actDate.Month).ToString("D2") + (31 - actDate.Day).ToString("D2")
                        + (23 - actDate.Hour).ToString("D2") + (59 - actDate.Minute).ToString("D2") + (59 - actDate.Second).ToString("D2");
         }
-
-#endregion
+        #endregion
 
     }
 }
