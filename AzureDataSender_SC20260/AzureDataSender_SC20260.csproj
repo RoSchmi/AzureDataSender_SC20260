@@ -78,7 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\BaltimoreCyberTrustRoot.crt_" />
+    <None Include="Resources\BaltimoreCyberTrustRoot.crt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="GHIElectronics.TinyCLR.Devices.Adc, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">

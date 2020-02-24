@@ -99,7 +99,7 @@ namespace AzureDataSender_SC20260
 
         #endregion
 
-        #region Region Fields
+        #region Region Fields and Declarations
         private static bool linkReady = false;
 
         private static bool timeServiceIsRunning = false;
@@ -120,8 +120,6 @@ namespace AzureDataSender_SC20260
         private static Timer getSensorDataTimer;
         private static Timer writeAnalogToCloudTimer;
         private static Timer readLastAnalogRowTimer;
-
-        private static AutoResetEvent waitForWiFiReady = new AutoResetEvent(false);
 
         private static readonly object LockProgram = new object();
 
@@ -375,9 +373,12 @@ namespace AzureDataSender_SC20260
 
                     string sampleTime = actDate.Month.ToString("D2") + "/" + actDate.Day.ToString("D2") + "/" + actDate.Year + " " + actDate.Hour.ToString("D2") + ":" + actDate.Minute.ToString("D2") + ":" + actDate.Second.ToString("D2") + " " + TimeOffsetUTCString;
 
-                    TimeSpan tflSend = OnOffSensor01LastSendTime == DateTime.MinValue ? new TimeSpan(0) : e.Timestamp - OnOffSensor01LastSendTime;
+                    //TimeSpan tflSend = OnOffSensor01LastSendTime == DateTime.MinValue ? new TimeSpan(0) : e.Timestamp - OnOffSensor01LastSendTime;
+                    TimeSpan tflSend = OnOffSensor01LastSendTime == DateTime.MinValue ? new TimeSpan(0) : actDate - OnOffSensor01LastSendTime;
 
-                    OnOffSensor01LastSendTime = e.Timestamp;
+                    //OnOffSensor01LastSendTime = e.Timestamp;
+                    OnOffSensor01LastSendTime = actDate;
+
 
                     string timeFromLastSendAsString = tflSend.Days.ToString("D3") + "-" + tflSend.Hours.ToString("D2") + ":" + tflSend.Minutes.ToString("D2") + ":" + tflSend.Seconds.ToString("D2");
 
