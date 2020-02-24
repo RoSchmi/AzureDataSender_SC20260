@@ -6,9 +6,9 @@ If 'UseTestValues' is activated automatically created 'SensorValues' are uploade
 when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). The Microsoft UWP Version of Charts4Azure is free.
 When the Button 'App' on the board is pressed (hold it some 10 seconds) and released this results in an On/Off Graph in Charts4Azure 
  
-First go to 'Settings to be changed by user and enter your credentials for your Azure Storage Account 
+First go to 'Settings to be changed by user' and enter your credentials for your Azure Storage Account 
 and your WiFi Credentials
-The Credentials can either be entered directly in the Code or can better be in  .txt files in the 'ResourcesSecret'
+The Credentials can either be entered directly in the Code or can better be in  .txt files in the folder (must be created) 'ResourcesSecret'
 
 You can view the data in table form with 'Microsoft Azure Storage Explorer' or the iOS-App 'AzureTabStorClient'
 You can view the data graphically with the App 'Charts4Azure' (see a Screenshot in folder pictures)
