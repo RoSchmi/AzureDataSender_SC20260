@@ -568,8 +568,8 @@ namespace AzureDataSender_SC20260
             // Set parameters of the TimeService
             TimeServiceSettings timeSettings = new TimeServiceSettings()
             {
-                RefreshTime = 60,                          // every 60 sec (for tests)      
-                //RefreshTime = 2 * 60 * 60,                   // every 2 hours (2 x 60 x 60) default: 300000 sec               
+                //RefreshTime = 60,                          // every 60 sec (for tests)      
+                RefreshTime = 2 * 60 * 60,                   // every 2 hours (2 x 60 x 60) default: 300000 sec               
                 AutoDayLightSavings = false,                 // We use our own timeshift calculation
                 ForceSyncAtWakeUp = true,
                 Tolerance = 10000                            // deviation may be up to 10 sec
