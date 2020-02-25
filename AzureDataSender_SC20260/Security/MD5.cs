@@ -8,7 +8,8 @@ namespace xBrainLab.Security.Cryptography
 {
     using System;
     using System.Text;
-    using PervasiveDigital.Utilities;
+    //using PervasiveDigital.Utilities;
+    using RoSchmi.Utilities;
 
     ////  **************************************************************
     ////  * Raw implementation of the MD5 hash algorithm

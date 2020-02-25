@@ -1,8 +1,11 @@
 // StringExtensions.cs
+// adapted from a class of Martin Calsyn
 
+using System;
 using System.Text;
 
-namespace PervasiveDigital.Utilities
+
+namespace RoSchmi.Utilities
 {
     public static class StringExtensions
     {
@@ -44,7 +47,7 @@ namespace PervasiveDigital.Utilities
 
             return returning.ToString();
         }
-
+        
         public static bool StartsWith(this string source, string search)
         {
             if (source == null)
@@ -76,8 +79,8 @@ namespace PervasiveDigital.Utilities
         }
 
         public static string Format(this string value, params string[] args)
-        {
-            return StringUtilities.Format(value, args);
+        {          
+            return String.Format(value, args);
         }
 
         public static bool Contains(this string s, string value)

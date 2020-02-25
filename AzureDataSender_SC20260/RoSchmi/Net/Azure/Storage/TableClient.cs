@@ -13,7 +13,8 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Security.Cryptography;
-using PervasiveDigital.Utilities;
+//using PervasiveDigital.Utilities;
+using RoSchmi.Utilities;
 using PervasiveDigital.Security.ManagedProviders;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics;
@@ -219,7 +220,7 @@ namespace RoSchmi.Net.Azure.Storage
             string contentType = getContentTypeString(pContentType);
             string acceptType = getAcceptTypeString(pAcceptType);
 
-            long totalMemory = GC.GetTotalMemory(true);
+            //long totalMemory = GC.GetTotalMemory(true);
         
             content = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
            "<entry xmlns:d=\"http://schemas.microsoft.com/ado/2007/08/dataservices\"  " +
@@ -295,7 +296,7 @@ namespace RoSchmi.Net.Azure.Storage
             string contentType = getContentTypeString(pContentType);
             string acceptType = getAcceptTypeString(pAcceptType);
 
-            long totalMemory = GC.GetTotalMemory(true);
+            //long totalMemory = GC.GetTotalMemory(true);
 
             switch (contentType)
             {
@@ -711,24 +712,7 @@ namespace RoSchmi.Net.Azure.Storage
                 // long endTime = DateTime.Now.Ticks;
                 // Debug.WriteLine("Needed for MD5-hash (1): " + ((endTime - startTime) / TimeSpan.TicksPerMillisecond).ToString());  // about 80 ms
 
-                #region Region: Alternatively use SPWF04SA to calculate the Hash (resulted in a memory leak, don't know why)
-                /*
-                 if (content.Length != 0)                  
-                        {
-
-                        wifi.CreateRamFile("fileToHash", content);
-                        content = null;
-                        pMD5Hash = Encoding.UTF8.GetString(wifi.ComputeHash("3", "fileToHash")).Substring(4);
-                        pHash = Convert.FromBase64String(pMD5Hash);                   
-                }
-                else
-                {
-                    // MD5 Hash of "" is constant, calculation throws an exception
-                    pHash = new byte[] { 212, 29, 140, 217, 143, 0, 178, 4, 233, 128, 9, 152, 236, 248, 66, 126 };
-                    pMD5Hash = "D41D8CD98F00B204E9800998ECF8427E";                                                                                                           
-                }
-                */
-                #endregion
+                
             }
 
             string toSign = string.Empty;
