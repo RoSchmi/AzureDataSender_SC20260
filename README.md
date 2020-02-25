@@ -12,6 +12,9 @@ The Credentials can either be entered directly in the Code or can better be loca
 
 You can view the data in table form with 'Microsoft Azure Storage Explorer' or the iOS-App 'AzureTabStorClient'
 You can view the data graphically with the App 'Charts4Azure'
+Free download from the Microsoft Store 
+https://www.microsoft.com/store/apps/9NVQM5X902RV
+
 
 
 ![gallery](https://github.com/RoSchmi/AzureDataSender_SC20260/blob/master/Pictures/Charts4Azure01.png)
