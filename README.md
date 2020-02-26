@@ -1,6 +1,6 @@
 # AzureDataSender_SC20260
 
-This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
+This App runs on a GHI SC20260D Dev Board with an Enc28 Ethernet adapter or the WiFi 7 click module. For the GHI SC20100 Dev board the GPIO Pins have to be adapted.
 This App shows how to write Sensor Data (4 analog Sensors) and up to 4 OnOffSensors to Azure Storage Tables
 If 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 45 sec which will form sinus curves
 when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). The Microsoft UWP Version of Charts4Azure is free of charge.
