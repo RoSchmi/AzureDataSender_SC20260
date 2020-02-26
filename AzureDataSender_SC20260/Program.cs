@@ -2,7 +2,7 @@
 // This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
 // This App shows how to write Sensor-Data (4 analog Sensors) and data from up to 4 On/OffSensors to Azure Storage Tables
 //
-// If the directive 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 45 sec which will form sinus curves
+// If the directive 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 150 sec which will form sinus curves
 // when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). The Microsoft UWP Version of Charts4Azure is free of charge.
 // When the Button 'App' on the board is pressed (hold it some 10 seconds) and released this results in a changed state of the On/Off-Graph in 'Charts4Azure' 
 // 
@@ -14,7 +14,7 @@
 
 #define UseTestValues
 
-// With #define UseWiFi you can select if the WiFi Click 7 Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
+// With #define UseWiFi you can select if the WiFi7 Click Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
 
 #define UseWifiModule
 
@@ -72,7 +72,7 @@ namespace AzureDataSender_SC20260
         // Set intervals (in seconds, invalidateInterval in minutes)
         static int readInterval = 4;                     // in this interval (seconds) analog sensors are read
 
-        static int writeToCloudInterval = 45;        // in this interval (seconds) the analog data are stored to the cloud (600 = 10 min is recommended)
+        static int writeToCloudInterval = 150;           // in this interval (seconds) the analog data are stored to the cloud (600 = 10 min is recommended)
 
         static int invalidateIntervalMinutes = 15;      // if analog values ar not actualized in this interval, they are set to invalid (999.9)
 
@@ -215,7 +215,8 @@ namespace AzureDataSender_SC20260
                     // Set flag to indicate that table already exists, avoid trying to create again
                     AnalogCloudTableYear = yearOfSend;
 
-                    writeAnalogToCloudTimer.Change(1 * 1000, writeToCloudInterval * 1000);  // set the timer event to come again in 1 sec.
+                    //writeAnalogToCloudTimer.Change(1 * 1000, writeToCloudInterval * 1000);  // set the timer event to come again in 1 sec.
+                    writeAnalogToCloudTimer.Change(4000, 4000);  // set the timer event to come again in 4 sec.                                     
                 }
                 else
                 {
@@ -501,8 +502,7 @@ namespace AzureDataSender_SC20260
 
         #region private method insertTableEntity
         private static HttpStatusCode insertTableEntity(CloudStorageAccount pCloudStorageAccount, X509Certificate[] pCaCerts, string pTable, TableEntity pTableEntity, out string pInsertETag)
-        {
-            //table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level, wifi);
+        {           
             table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level);
             // To use Fiddler as WebProxy include the following line. Use the local IP-Address of the PC where Fiddler is running
             // see: -http://blog.devmobile.co.nz/2013/01/09/netmf-http-debugging-with-fiddler
@@ -520,8 +520,7 @@ namespace AzureDataSender_SC20260
 
         #region private method createTable
         private static HttpStatusCode createTable(CloudStorageAccount pCloudStorageAccount, X509Certificate[] pCaCerts, string pTableName)
-        {
-            //table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level, wifi);
+        {            
             table = new TableClient(pCloudStorageAccount, pCaCerts, _debug, _debug_level);
 
             // To use Fiddler as WebProxy include the following line. Use the local IP-Address of the PC where Fiddler is running
@@ -547,8 +546,7 @@ namespace AzureDataSender_SC20260
             // see: -http://blog.devmobile.co.nz/2013/01/09/netmf-http-debugging-with-fiddler
             //if (attachFiddler)
             //{ table.attachFiddler(true, fiddlerIPAddress, fiddlerPort); }
-
-            // HttpStatusCode resultCode = table.QueryTableEntities(tableName, query, TableClient.ContType.applicationIatomIxml, TableClient.AcceptType.applicationIatomIxml, useSharedKeyLite: false);
+          
             HttpStatusCode resultCode = table.QueryTableEntities(tableName, query, TableClient.ContType.applicationIatomIxml, TableClient.AcceptType.applicationIatomIxml, useSharedKeyLite: false);
 
             // now we can get the results by reading the properties: table.OperationResponse......
