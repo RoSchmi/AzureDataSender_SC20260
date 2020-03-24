@@ -2,15 +2,21 @@
 // This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
 // This App shows how to write Sensor-Data (4 analog Sensors) and data from up to 4 On/OffSensors to Azure Storage Tables
 //
-// If the directive 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 150 sec which will form sinus curves
-// when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). The Microsoft UWP Version of Charts4Azure is free of charge.
+// If the directive 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 150 sec (can be changed in 'writeToCloudInterval') which will form sinus curves
+// when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). 
+// The Microsoft UWP Version of Charts4Azure is free of charge.
+//
+// If the directive 'UseWifiModule' detrermines whether a WiFi7click module on microBus port2 or an Enc28 Module on mikroBus port1 is used.
+// 
 // When the Button 'App' on the board is pressed (hold it some 10 seconds) and released this results in a changed state of the On/Off-Graph in 'Charts4Azure' 
 // 
-// First go to 'Settings to be changed by user and enter your credentials for your Azure Storage Account and your WiFi Credentials
+// First go to 'Settings to be changed by user' and enter your credentials for your Azure Storage Account and your WiFi Credentials
 // 
 // The Credentials can either be entered directly in the Code or can better be in  .txt files in the 'ResourcesSecret' folder
 //
 // With #define UseTestValues you can select if data are read from sensors or if simulated data (sinus curves) are used
+
+
 
 #define UseTestValues
 
@@ -53,10 +59,7 @@ namespace AzureDataSender_SC20260
 
         private static int timeZoneOffset = 60;         // Berlin offest in minutes of your timezone to Greenwich Mean Time (GMT)
         //private static int timeZoneOffset = 120;      // Berlin (DaylightsavingTime) offest in minutes of your timezone to Greenwich Mean Time (GMT)
-
-        // Watchdog is not yet used in the App for TinyCLR v2.0.0
-        private static bool workWithWatchdog = false;    // with watchdog activated occasionally OutOfMemory exceptions are thrown, test if watchdog works for you
-
+     
         // Set the name of the table for analog values (name must be conform to special rules: see Azure)
         private static string analogTableName = "AnalogTestValues";
 
@@ -72,7 +75,8 @@ namespace AzureDataSender_SC20260
         // Set intervals (in seconds, invalidateInterval in minutes)
         static int readInterval = 4;                     // in this interval (seconds) analog sensors are read
 
-        static int writeToCloudInterval = 150;           // in this interval (seconds) the analog data are stored to the cloud (600 = 10 min is recommended)
+          static int writeToCloudInterval = 30;   // for tests 30, in this interval(seconds) the analog data are stored to the cloud
+        //static int writeToCloudInterval = 150;  // for real application 150 or more, in this interval (seconds) the analog data are stored to the cloud 
 
         static int invalidateIntervalMinutes = 15;      // if analog values ar not actualized in this interval, they are set to invalid (999.9)
 
@@ -202,10 +206,8 @@ namespace AzureDataSender_SC20260
                 HttpStatusCode resultTableCreate = HttpStatusCode.Ambiguous;
                 if (AnalogCloudTableYear != yearOfSend)
                 {
-                    Debug.WriteLine("\r\nGoing to create analog Table");
-                    //watchdogIsActive = true;
-                    resultTableCreate = createTable(myCloudStorageAccount, caCerts, analogTableName + DateTime.Today.Year.ToString());
-                    //watchdogIsActive = false;
+                    Debug.WriteLine("\r\nGoing to create analog Table");                   
+                    resultTableCreate = createTable(myCloudStorageAccount, caCerts, analogTableName + DateTime.Today.Year.ToString());                  
                 }
 
         #endregion
@@ -257,11 +259,7 @@ namespace AzureDataSender_SC20260
                     string insertEtag = string.Empty;
                     HttpStatusCode insertResult = HttpStatusCode.BadRequest;
 
-                    //watchdogIsActive = true;
-
                     insertResult = insertTableEntity(myCloudStorageAccount, caCerts, analogTableName + yearOfSend.ToString(), analogTableEntity, out insertEtag);
-
-                    //watchdogIsActive = false;
 
                     if ((insertResult == HttpStatusCode.NoContent) || (insertResult == HttpStatusCode.Conflict))
                     {
@@ -289,15 +287,9 @@ namespace AzureDataSender_SC20260
             {
                 Debug.WriteLine("Going to read back last uploaded entity");
 
-                //wifi.SetConfiguration("console_wind_off_high", "0x100000");      // mask WIND NtpServerDelivery 
-
                 ArrayList queryResult = new ArrayList();
 
-                //watchdogIsActive = true;
-
                 HttpStatusCode resultQuery = queryTableEntities(myCloudStorageAccount, caCerts, analogTableName + DateTime.Now.Year.ToString(), "$top=1", out queryResult);
-
-                //watchdogIsActive = false;
 
                 if (resultQuery == HttpStatusCode.OK)
                 {
@@ -315,9 +307,7 @@ namespace AzureDataSender_SC20260
 
                 long freeMemory = GHIElectronics.TinyCLR.Native.Memory.ManagedMemory.FreeBytes;
                 long totalMemory = GC.GetTotalMemory(true);
-                Debug.WriteLine("Total Memory: " + totalMemory.ToString("N0") + " Free Bytes: " + freeMemory.ToString("N0"));
-
-                //wifi.SetConfiguration("console_wind_off_high", "0x000000");     // unmask WIND NtpServerDelivery 
+                Debug.WriteLine("Total Memory: " + totalMemory.ToString("N0") + " Free Bytes: " + freeMemory.ToString("N0"));                
             }
         }
 #endregion
@@ -345,18 +335,13 @@ namespace AzureDataSender_SC20260
             {
                 int yearOfSend = DateTime.Now.Year;
                 
-
                 // Create OnOffTable if not exists
                 HttpStatusCode resultTableCreate = HttpStatusCode.Ambiguous;
                 if (OnOffTable01Year != yearOfSend)
                 {
                     Debug.WriteLine("Going to create On/Off Table");
 
-                    //watchdogIsActive = true;
-
-                    resultTableCreate = createTable(myCloudStorageAccount, caCerts, OnOffSensor01TableName + DateTime.Today.Year.ToString());
-
-                    //watchdogIsActive = false;
+                    resultTableCreate = createTable(myCloudStorageAccount, caCerts, OnOffSensor01TableName + DateTime.Today.Year.ToString());                  
                 }
 
                 if ((resultTableCreate == HttpStatusCode.Created) || (resultTableCreate == HttpStatusCode.NoContent) || (resultTableCreate == HttpStatusCode.Conflict))
@@ -374,13 +359,10 @@ namespace AzureDataSender_SC20260
 
                     string sampleTime = actDate.Month.ToString("D2") + "/" + actDate.Day.ToString("D2") + "/" + actDate.Year + " " + actDate.Hour.ToString("D2") + ":" + actDate.Minute.ToString("D2") + ":" + actDate.Second.ToString("D2") + " " + TimeOffsetUTCString;
 
-                    //TimeSpan tflSend = OnOffSensor01LastSendTime == DateTime.MinValue ? new TimeSpan(0) : e.Timestamp - OnOffSensor01LastSendTime;
-                    TimeSpan tflSend = OnOffSensor01LastSendTime == DateTime.MinValue ? new TimeSpan(0) : actDate - OnOffSensor01LastSendTime;
-
-                    //OnOffSensor01LastSendTime = e.Timestamp;
-                    OnOffSensor01LastSendTime = actDate;
-
-
+                    TimeSpan tflSend = OnOffSensor01LastSendTime == DateTime.MinValue ? new TimeSpan(0) : e.Timestamp - OnOffSensor01LastSendTime;
+                    
+                    OnOffSensor01LastSendTime = e.Timestamp;
+                   
                     string timeFromLastSendAsString = tflSend.Days.ToString("D3") + "-" + tflSend.Hours.ToString("D2") + ":" + tflSend.Minutes.ToString("D2") + ":" + tflSend.Seconds.ToString("D2");
 
                     OnOffSensor01OnTimeDay = OnOffSensor01.Read() == GpioPinValue.High ? OnOffSensor01OnTimeDay + tflSend : OnOffSensor01OnTimeDay;
