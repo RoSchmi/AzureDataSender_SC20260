@@ -1,4 +1,4 @@
-﻿// Copyright RoSchmi 2020, License Apache 2.0
+﻿// Copyright RoSchmi 2020, Date 2020/04/27 License Apache 2.0
 // This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
 // This App shows how to write Sensor-Data (4 analog Sensors) and data from up to 4 On/OffSensors to Azure Storage Tables
 //
@@ -22,7 +22,7 @@
 
 // With #define UseWiFi you can select if the WiFi7 Click Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
 
-#define UseWifiModule
+//#define UseWifiModule
 
 using System;
 using System.Collections;
@@ -131,7 +131,8 @@ namespace AzureDataSender_SC20260
 
         private static CloudStorageAccount myCloudStorageAccount;
 
-        private static AdcController adc = AdcController.GetDefault();
+        private static AdcController adc = AdcController.FromName(SC20260.AdcChannel.Controller1.Id);
+
         private static AdcChannel analog0 = adc.OpenChannel(SC20260.AdcChannel.Controller1.PA0C);
         private static AdcChannel analog1 = adc.OpenChannel(SC20260.AdcChannel.Controller1.PA1C);
         private static AdcChannel analog2 = adc.OpenChannel(SC20260.AdcChannel.Controller3.PC2C);
@@ -655,12 +656,14 @@ namespace AzureDataSender_SC20260
             var networkCommunicationInterfaceSettings = new
                 SpiNetworkCommunicationInterfaceSettings();
 
+            var cs = GHIElectronics.TinyCLR.Devices.Gpio.GpioController.GetDefault().
+            OpenPin(GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.PG12);
+
             var settings = new GHIElectronics.TinyCLR.Devices.Spi.SpiConnectionSettings()
             {
-                ChipSelectLine = SC20260.GpioPin.PG12,
+                ChipSelectLine = cs,
                 ClockFrequency = 4000000,
-                Mode = GHIElectronics.TinyCLR.Devices.Spi.SpiMode.Mode0,
-                DataBitLength = 8,
+                Mode = GHIElectronics.TinyCLR.Devices.Spi.SpiMode.Mode0,               
                 ChipSelectType = GHIElectronics.TinyCLR.Devices.Spi.SpiChipSelectType.Gpio,
                 ChipSelectHoldTime = TimeSpan.FromTicks(10),
                 ChipSelectSetupTime = TimeSpan.FromTicks(10)
@@ -672,11 +675,13 @@ namespace AzureDataSender_SC20260
             networkCommunicationInterfaceSettings.GpioApiName =
                 GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.Id;
 
-            networkCommunicationInterfaceSettings.SpiSettings = settings;
-            networkCommunicationInterfaceSettings.InterruptPin = SC20260.GpioPin.PG6;
+            networkCommunicationInterfaceSettings.SpiSettings = settings;           
+            networkCommunicationInterfaceSettings.InterruptPin = GHIElectronics.TinyCLR.Devices.Gpio.GpioController.GetDefault().
+                OpenPin(GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.PG6);
             networkCommunicationInterfaceSettings.InterruptEdge = GpioPinEdge.FallingEdge;
-            networkCommunicationInterfaceSettings.InterruptDriveMode = GpioPinDriveMode.InputPullUp;
-            networkCommunicationInterfaceSettings.ResetPin = SC20260.GpioPin.PI8;
+            networkCommunicationInterfaceSettings.InterruptDriveMode = GpioPinDriveMode.InputPullUp;           
+            networkCommunicationInterfaceSettings.ResetPin = GHIElectronics.TinyCLR.Devices.Gpio.GpioController.GetDefault().
+                OpenPin(GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.PI8);
             networkCommunicationInterfaceSettings.ResetActiveState = GpioPinValue.Low;
 
             networkInterfaceSetting.Address = new IPAddress(new byte[] { 192, 168, 1, 122 });
@@ -723,13 +728,15 @@ namespace AzureDataSender_SC20260
             SpiNetworkCommunicationInterfaceSettings networkCommunicationInterfaceSettings =
                 new SpiNetworkCommunicationInterfaceSettings();
 
+            var cs = GHIElectronics.TinyCLR.Devices.Gpio.GpioController.GetDefault().
+               OpenPin(GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.PC13);
+
             var settings = new GHIElectronics.TinyCLR.Devices.Spi.SpiConnectionSettings()
             {
                 
-                ChipSelectLine = SC20260.GpioPin.PC13,
+                ChipSelectLine = cs,
                 ClockFrequency = 4000000,               
-                Mode = GHIElectronics.TinyCLR.Devices.Spi.SpiMode.Mode0,
-                DataBitLength = 8,
+                Mode = GHIElectronics.TinyCLR.Devices.Spi.SpiMode.Mode0,               
                 ChipSelectType = GHIElectronics.TinyCLR.Devices.Spi.SpiChipSelectType.Gpio,
                 ChipSelectHoldTime = TimeSpan.FromTicks(10),
                 ChipSelectSetupTime = TimeSpan.FromTicks(10)
@@ -741,11 +748,13 @@ namespace AzureDataSender_SC20260
             networkCommunicationInterfaceSettings.GpioApiName =
                 GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.Id;
 
-            networkCommunicationInterfaceSettings.SpiSettings = settings;           
-            networkCommunicationInterfaceSettings.InterruptPin = SC20260.GpioPin.PJ13;
+            networkCommunicationInterfaceSettings.SpiSettings = settings;                      
+            networkCommunicationInterfaceSettings.InterruptPin = GHIElectronics.TinyCLR.Devices.Gpio.GpioController.GetDefault().
+                OpenPin(GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.PJ13);
             networkCommunicationInterfaceSettings.InterruptEdge = GpioPinEdge.FallingEdge;
-            networkCommunicationInterfaceSettings.InterruptDriveMode = GpioPinDriveMode.InputPullUp;           
-            networkCommunicationInterfaceSettings.ResetPin = SC20260.GpioPin.PI11;
+            networkCommunicationInterfaceSettings.InterruptDriveMode = GpioPinDriveMode.InputPullUp;                      
+            networkCommunicationInterfaceSettings.ResetPin = GHIElectronics.TinyCLR.Devices.Gpio.GpioController.GetDefault().
+                OpenPin(GHIElectronics.TinyCLR.Pins.SC20260.GpioPin.PI11);
             networkCommunicationInterfaceSettings.ResetActiveState = GpioPinValue.Low;
 
             var networkController = NetworkController.FromName
