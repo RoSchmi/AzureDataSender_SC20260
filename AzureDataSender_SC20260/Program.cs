@@ -615,7 +615,7 @@ namespace AzureDataSender_SC20260
             var rtc = RtcController.GetDefault();
             if (timeServiceIsRunning)
             {
-                rtc.Now = DateTime.Now;
+                rtc.Now = DateTime.UtcNow;
             }
             else
             {
@@ -623,7 +623,7 @@ namespace AzureDataSender_SC20260
                 // Get time from Rtc
                 if (rtc.IsValid)
                 {
-                    SystemTime.SetTime(rtc.Now);
+                    SystemTime.SetTime(rtc.Now, timeZoneOffset);
                 }
             }
 
