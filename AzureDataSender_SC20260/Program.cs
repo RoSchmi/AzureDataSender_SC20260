@@ -1,4 +1,4 @@
-﻿// Copyright RoSchmi 2020, Date 2020/04/27 License Apache 2.0
+﻿// Copyright RoSchmi 2020, Date 2020/07/10 License Apache 2.0
 // This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
 // This App shows how to write Sensor-Data (4 analog Sensors) and data from up to 4 On/OffSensors to Azure Storage Tables
 //
@@ -22,7 +22,7 @@
 
 // With #define UseWiFi you can select if the WiFi7 Click Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
 
-//#define UseWifiModule
+#define UseWifiModule
 
 using System;
 using System.Collections;
