@@ -6,7 +6,7 @@
 // when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). 
 // The Microsoft UWP Version of Charts4Azure is free of charge.
 //
-// If the directive 'UseWifiModule' detrermines whether a WiFi7click module on microBus port2 or an Enc28 Module on mikroBus port1 is used.
+// The directive 'UseWifiModule' determines whether a WiFi7click module on microBus port2 or an Enc28 Module on mikroBus port1 is used.
 // 
 // When the Button 'App' on the board is pressed (hold it some 10 seconds) and released this results in a changed state of the On/Off-Graph in 'Charts4Azure' 
 // 
@@ -636,6 +636,7 @@ namespace AzureDataSender_SC20260
                 Debug.WriteLine("Restarting Program");
 
                 Power.Reset(true);
+               
             }
             else
             {
