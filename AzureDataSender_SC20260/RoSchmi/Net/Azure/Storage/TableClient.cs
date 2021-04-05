@@ -215,6 +215,11 @@ namespace RoSchmi.Net.Azure.Storage
         {
             OperationResultsClear();
             string timestamp = GetDateHeader();
+
+            // RoSchmi, for Debugging
+            //timestamp = "2020-09-30T23:31:04";
+            String timestampUTC = timestamp + ".0000000Z";
+
             string content = string.Empty;
 
             string contentType = getContentTypeString(pContentType);
@@ -230,15 +235,20 @@ namespace RoSchmi.Net.Azure.Storage
                + tableName +
            "')</id>" +
            "<title />" +
-           "<updated>" + DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.0000000Z") + "</updated>" +
+           "<updated>" + timestampUTC + "</updated>" +
            "<author><name/></author> " +
            "<content type=\"application/xml\"><m:properties><d:TableName>" + tableName + "</d:TableName></m:properties></content></entry>";
 
-
+            // "<updated>" + timestampUTC + "</updated>" +
+            //"<updated>" + DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.0000000Z") + "</updated>" +
             string HttpVerb = "POST";
             string ContentMD5 = string.Empty;
             byte[] hashContentMD5 = null;
             int contentLength = 0;
+
+            // RoSchmi for debugging
+            // Debug.WriteLine(content);
+
             byte[] payload = GetBodyBytesAndLength(content, out contentLength);
 
             content = null; // free memory
@@ -291,6 +301,13 @@ namespace RoSchmi.Net.Azure.Storage
         {
             OperationResultsClear(); ;
             string timestamp = GetDateHeader();
+
+            //RoSchmi: for tests
+            //timestamp = "Wed, 21 Oct 2020 08:53:19 GMT";
+
+
+
+
             string content = string.Empty;
 
             string contentType = getContentTypeString(pContentType);
@@ -740,9 +757,19 @@ namespace RoSchmi.Net.Azure.Storage
 
             //long startTime = DateTime.Now.Ticks;
 
+            //RoSchmi debugging
+            //byte[] decodedKey = Convert.FromBase64String(_account.AccountKey);
+            
             var hmac = new PervasiveDigital.Security.ManagedProviders.HMACSHA256(Convert.FromBase64String(_account.AccountKey));
             var hmacBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(toSign));
             signature = Convert.ToBase64String(hmacBytes).Replace("!", "+").Replace("*", "/");
+            
+            /*
+            var hmac = new PervasiveDigital.Security.ManagedProviders.HMACSHA256(Convert.FromBase64String(_account.AccountKey));
+            var hmacBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes("Roland"));
+            signature = Convert.ToBase64String(hmacBytes).Replace("!", "+").Replace("*", "/");
+            */
+
 
             // long endTime = DateTime.Now.Ticks;
             // Debug.WriteLine("Needed for MD5SHA256-hash: " + ((endTime - startTime) / TimeSpan.TicksPerMillisecond).ToString());  // about 160 ms

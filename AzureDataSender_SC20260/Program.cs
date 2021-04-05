@@ -2,7 +2,7 @@
 // This App runs on a GHI SC20260D Dev Board, for the GHI SC20100 Dev board the GPIO Pins have to be adapted
 // This App shows how to write Sensor-Data (4 analog Sensors) and data from up to 4 On/OffSensors to Azure Storage Tables
 //
-// If the directive 'UseTestValues' is activated automatically created 'SensorValues' are uploaded every 150 sec (can be changed in 'writeToCloudInterval') which will form sinus curves
+// If the directive 'UseTestValues' is activated, automatically created 'SensorValues' are uploaded every 150 sec (can be changed in 'writeToCloudInterval') which will form sinus curves
 // when viewed with the App Charts4Azure (iOS, Android, Microsoft UWP). 
 // The Microsoft UWP Version of Charts4Azure is free of charge.
 //
@@ -22,7 +22,7 @@
 
 // With #define UseWiFi you can select if the WiFi7 Click Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
 
-#define UseWifiModule
+//#define UseWifiModule
 
 using System;
 using System.Collections;
@@ -61,7 +61,7 @@ namespace AzureDataSender_SC20260
         //private static int timeZoneOffset = 120;      // Berlin (DaylightsavingTime) offest in minutes of your timezone to Greenwich Mean Time (GMT)
      
         // Set the name of the table for analog values (name must be conform to special rules: see Azure)
-        private static string analogTableName = "AnalogTestValues";
+        private static string analogTableName = "Analog20260Values";
 
         private static string analogTablePartPrefix = "Y2_";     // Your choice (name must be conform to special rules: see Azure)
         private static bool augmentPartitionKey = true;          // If true, the actual year is added as suffix to the Tablenames
@@ -75,7 +75,8 @@ namespace AzureDataSender_SC20260
         // Set intervals (in seconds, invalidateInterval in minutes)
         static int readInterval = 4;                     // in this interval (seconds) analog sensors are read
 
-          static int writeToCloudInterval = 30;   // for tests 30, in this interval(seconds) the analog data are stored to the cloud
+        static int writeToCloudInterval = 60;   // for tests 30, in this interval(seconds) the analog data are stored to the cloud
+
         //static int writeToCloudInterval = 150;  // for real application 150 or more, in this interval (seconds) the analog data are stored to the cloud 
 
         static int invalidateIntervalMinutes = 15;      // if analog values ar not actualized in this interval, they are set to invalid (999.9)
@@ -95,8 +96,8 @@ namespace AzureDataSender_SC20260
         static string storageKey = ResourcesSecret.GetString(ResourcesSecret.StringResources.AzureAccountKey);
         //static string storageKey = "your key";
 
-        private static bool Azure_useHTTPS = true;
-        //private static bool Azure_useHTTPS = false;
+        //private static bool Azure_useHTTPS = true;
+        private static bool Azure_useHTTPS = false;
 
 
         //****************  End of Settings to be changed by user   ********************************* 
@@ -131,12 +132,12 @@ namespace AzureDataSender_SC20260
 
         private static CloudStorageAccount myCloudStorageAccount;
 
-        private static AdcController adc = AdcController.FromName(SC20260.AdcChannel.Controller1.Id);
+        private static AdcController adc = AdcController.FromName(SC20260.Adc.Controller1.Id);
 
-        private static AdcChannel analog0 = adc.OpenChannel(SC20260.AdcChannel.Controller1.PA0C);
-        private static AdcChannel analog1 = adc.OpenChannel(SC20260.AdcChannel.Controller1.PA1C);
-        private static AdcChannel analog2 = adc.OpenChannel(SC20260.AdcChannel.Controller3.PC2C);
-        private static AdcChannel analog3 = adc.OpenChannel(SC20260.AdcChannel.Controller3.PC3C);
+        private static AdcChannel analog0 = adc.OpenChannel(SC20260.Adc.Controller1.PA0C);
+        private static AdcChannel analog1 = adc.OpenChannel(SC20260.Adc.Controller1.PA1C);
+        private static AdcChannel analog2 = adc.OpenChannel(SC20260.Adc.Controller3.PC2C);
+        private static AdcChannel analog3 = adc.OpenChannel(SC20260.Adc.Controller3.PC3C);
 
         // For OnOffSensor01, must be created for OnOffSensor02 - OnOffSensor04 if needed       
         static DateTime OnOffSensor01LastSendTime = DateTime.MinValue;
@@ -249,6 +250,8 @@ namespace AzureDataSender_SC20260
                         }
                         sampleValues[i - 1] = measuredValue;
                     }
+
+                   
 
                     // Populate Analog Table with values from the array
                     ArrayList propertiesAL = AnalogTablePropertiesAL.AnalogPropertiesAL(sampleTime, sampleValues[0], sampleValues[1], sampleValues[2], sampleValues[3]);
@@ -692,8 +695,8 @@ namespace AzureDataSender_SC20260
         { 75, 75, 75, 75 }), new IPAddress(new byte[] { 75, 75, 75, 76 }) };
 
             networkInterfaceSetting.MacAddress = new byte[] { 0x00, 0x4, 0x00, 0x00, 0x00, 0x00 };
-            networkInterfaceSetting.IsDhcpEnabled = true;
-            networkInterfaceSetting.IsDynamicDnsEnabled = true;
+            networkInterfaceSetting.DhcpEnable  = true;
+            networkInterfaceSetting.DhcpEnable = true;
 
             networkInterfaceSetting.TlsEntropy = new byte[] { 0, 1, 2, 3 };
 
@@ -776,8 +779,8 @@ namespace AzureDataSender_SC20260
             //networkInterfaceSetting.MacAddress = new byte[] { 0x00, 0x4, 0x00, 0x00, 0x00, 0x00 };
             networkInterfaceSetting.MacAddress = new byte[] { 0x4A, 0x28, 0x05, 0x2A, 0xA4, 0x0F };
 
-            networkInterfaceSetting.IsDhcpEnabled = true;
-            networkInterfaceSetting.IsDynamicDnsEnabled = true;
+            networkInterfaceSetting.DhcpEnable = true;
+            networkInterfaceSetting.DhcpEnable = true;
 
             networkInterfaceSetting.TlsEntropy = new byte[] { 1, 2, 3, 4 };
 
