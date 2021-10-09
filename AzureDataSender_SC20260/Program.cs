@@ -22,7 +22,7 @@
 
 // With #define UseWiFi you can select if the WiFi7 Click Module on microBus2 or an Enc28 Ethernet Module on microBus1 is used
 
-//#define UseWifiModule
+#define UseWifiModule
 
 using System;
 using System.Collections;
@@ -96,8 +96,8 @@ namespace AzureDataSender_SC20260
         static string storageKey = ResourcesSecret.GetString(ResourcesSecret.StringResources.AzureAccountKey);
         //static string storageKey = "your key";
 
-        //private static bool Azure_useHTTPS = true;
-        private static bool Azure_useHTTPS = false;
+        private static bool Azure_useHTTPS = true;
+        //private static bool Azure_useHTTPS = false;
 
 
         //****************  End of Settings to be changed by user   ********************************* 
@@ -110,6 +110,8 @@ namespace AzureDataSender_SC20260
         private static bool timeServiceIsRunning = false;
         
         private static bool timeIsSet = false;
+
+        private static int uploadCounter = 0;
 
         private static NetworkController networkController;
 
@@ -264,6 +266,8 @@ namespace AzureDataSender_SC20260
                     HttpStatusCode insertResult = HttpStatusCode.BadRequest;
 
                     insertResult = insertTableEntity(myCloudStorageAccount, caCerts, analogTableName + yearOfSend.ToString(), analogTableEntity, out insertEtag);
+
+                    uploadCounter++;
 
                     if ((insertResult == HttpStatusCode.NoContent) || (insertResult == HttpStatusCode.Conflict))
                     {
@@ -479,9 +483,17 @@ namespace AzureDataSender_SC20260
             if (pAin == 3)
             { frequDeterminer = 16; y_offset = 30; }
 
-            int secondsOnDayElapsed = DateTime.Now.Second + DateTime.Now.Minute * 60 + DateTime.Now.Hour * 60 * 60;
             
-            return Math.Round(25f * (double)Math.Sin(Math.PI / 2.0 + (secondsOnDayElapsed * ((frequDeterminer * Math.PI) / (double)86400)))) / 10  + y_offset;          
+            int secondsOnDayElapsed = DateTime.Now.Second + DateTime.Now.Minute * 60 + DateTime.Now.Hour * 60 * 60;
+
+            if (pAin == 3)
+            {
+                return Math.Round((double)(uploadCounter % 100)) / 10;         
+            }
+            else
+            {
+                return Math.Round(25f * (double)Math.Sin(Math.PI / 2.0 + (secondsOnDayElapsed * ((frequDeterminer * Math.PI) / (double)86400)))) / 10 + y_offset;
+            }
             #endif
         }
         #endregion
